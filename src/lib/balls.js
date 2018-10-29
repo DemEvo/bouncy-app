@@ -88,7 +88,7 @@ function CheckCollision(ball1, ball2) {
     let distance = (absx * absx) + (absy * absy);
     distance = Math.sqrt(distance);
 
-    if (distance < (parseFloat(ball1.radius) + parseFloat(ball2.radius))) {
+    if (distance <= (parseFloat(ball1.radius) + parseFloat(ball2.radius))) {
         return true;
     }
     return false;
@@ -230,7 +230,7 @@ export function Initialize(container, ballsAmount) {
     ];
 
     for (let i = 0; i < ballsAmount; ++i) {
-        balls.push(new Ball(canvasContainer, 20*i, 20*i, 'n'+(i+1).toString(), colors[i], Math.PI / (i+1), (i%2) === 0 ? 10 : (10+i)));
+        balls.push(new Ball(canvasContainer, 20*i, 20*i, 'n'+(i+1).toString(), colors[i], Math.PI / (i+1), (i%2) === 0 ? 10 : (10+i*1)));
     }
 
     for (let i = 0; i < balls.length; ++i) {
