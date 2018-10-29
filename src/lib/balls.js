@@ -11,6 +11,7 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
     this.id = id;
     this.aoa = aoa;
     this.weight = weight;
+    this.mass = Math.PI*this.radius*this.radius;
 
     if (!this.aoa)
         this.aoa = Math.PI / 7;
@@ -104,14 +105,81 @@ function ProcessCollision(ball1, ball2) {
     ball2 = balls[ball2];
 
     if ( CheckCollision(ball1, ball2) ) {
-        let vx1 = (ball1.vx * (ball1.weight - ball2.weight)
-            + (2 * ball2.weight * ball2.vx )) / (ball1.weight + ball2.weight);
-        let vy1 = (ball1.vy * (ball1.weight - ball2.weight)
-            + (2 * ball2.weight * ball2.vy)) / (ball1.weight + ball2.weight);
-        let vx2 = (ball2.vx * (ball2.weight - ball1.weight)
-            + (2 * ball1.weight * ball1.vx)) / (ball1.weight + ball2.weight);
-        let vy2 = (ball2.vy * (ball2.weight - ball1.weight)
-            + (2 * ball1.weight * ball1.vy)) / (ball1.weight + ball2.weight);
+        let m1=ball1.mass;// массы
+        let m2=ball2.mass;
+
+        let v1_x=ball1.vx;// скорости
+        let v1_y=ball1.vy;
+        let v2_x=ball2.vx;
+        let v2_y=ball2.vy;
+
+        let p1_x=ball1.posX;// точки центров шаров
+        let p1_y=ball1.posY;
+        let p2_x=ball2.posX;
+        let p2_y=ball2.posY;
+// нормаль к удару, касательная
+        //let norm_x,norm_y,tang_x,tang_y;
+
+// создаём и нормируем вектор из двух точек
+        let pdpx = p2_x - p1_x;
+        let pdpy = p2_y - p1_y;
+        let Qpdpx = pdpx*pdpx;
+        let Qpdpy = pdpy*pdpy;
+        let Denom=Qpdpx+Qpdpy;
+
+        let norm_x = (pdpx<0?-Qpdpx:Qpdpx) / Denom;
+        let norm_y = (pdpy<0?-Qpdpy:Qpdpy) / Denom;
+
+// находим вектор ортогональный заданному
+        let tang_x = norm_y;
+        let tang_y = -norm_x;
+
+// проэкции скоростей на нормаль и касательную
+        //let v1n_x,v2n_x,v1t_x,v2t_x;
+        //let v1n_y,v2n_y,v1t_y,v2t_y;
+
+// vect - что проэцируем, line - куда проэцируем
+        let Denomnorm=norm_x*norm_x+norm_y*norm_y;
+        let tmpnorm1=(v1_x*norm_x+v1_y*norm_y)/Denomnorm;
+
+        let v1n_x =  norm_x*tmpnorm1;
+        let v1n_y =  norm_y*tmpnorm1;
+
+// vect - что проэцируем, line - куда проэцируем
+        let tmpnorm2=(v2_x*norm_x+v2_y*norm_y)/Denomnorm;
+
+        let v2n_x =  norm_x*tmpnorm2;
+        let v2n_y =  norm_y*tmpnorm2;
+
+        let Denomtang=tang_x*tang_x+tang_y*tang_y;
+        let tmptang1=(v1_x*tang_x+v1_y*tang_y)/Denomtang;
+
+        let v1t_x =  tang_x*tmptang1;
+        let v1t_y =  tang_y*tmptang1;
+
+// vect - что проэцируем, line - куда проэцируем
+        let tmptang2=(v2_x*tang_x+v2_y*tang_y)/Denomtang;
+
+        let v2t_x =  tang_x*tmptang2;
+        let v2t_y =  tang_y*tmptang2;
+
+        //let v1res_x,v2res_x;
+        //let v1res_y,v2res_y;
+// считаем импульсы
+        let msm=(m1+m2);
+        let mdm=m1-m2;
+        let v1res_x=(2*m2*v2n_x+mdm*v1n_x)/msm;
+        let v1res_y=(2*m2*v2n_y+mdm*v1n_y)/msm;
+        let v2res_x=(2*m1*v1n_x-mdm*v2n_x)/msm;
+        let v2res_y=(2*m1*v1n_y-mdm*v2n_y)/msm;
+
+// сумма векторов проэкций = результат
+        let vx1 =v1res_x+v1t_x;
+        let vy1 =v1res_y+v1t_y;
+
+        let vx2 =v2res_x+v2t_x;
+        let vy2=v2res_y+v2t_y;
+
 
         ball1.vx = vx1;
         ball1.vy = vy1;
