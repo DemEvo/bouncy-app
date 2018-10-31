@@ -2,8 +2,8 @@ let balls = [];
 let startStopFlag = null;
 
 function Ball(canvasContainer, x, y, id, color, aoa, weight) {
-    this.posX = x; // cx
-    this.posY = y; // cy
+    this.posX = x%(400-2*weight)+weight; // cx
+    this.posY = y%(960-2*weight)+weight; // cy
     this.color = color;
     this.radius = weight;
     this.jumpSize = 2;
@@ -23,6 +23,8 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
 
     this.vx = Math.cos(thisobj.aoa) * thisobj.jumpSize; // velocity x
     this.vy = Math.sin(thisobj.aoa) * thisobj.jumpSize; // velocity y
+
+    console.log(`Ball #${id} =`,this);
 
     this.Draw = function () {
         let canvasContainer = thisobj.canvasContainer;
@@ -186,15 +188,15 @@ function ProcessCollision(ball1, ball2) {
         ball2.vx = vx2;
         ball2.vy = vy2;
 
-        while (CheckCollision(ball1, ball2)) {
-            ball1.posX += ball1.vx;
-            ball1.posY += ball1.vy;
-
-            ball2.posX += ball2.vx;
-            ball2.posY += ball2.vy;
-        }
-        ball1.Draw();
-        ball2.Draw();
+        // while (CheckCollision(ball1, ball2)) {
+        //     ball1.posX += ball1.vx;
+        //     ball1.posY += ball1.vy;
+        //
+        //     ball2.posX += ball2.vx;
+        //     ball2.posY += ball2.vy;
+        // }
+        // ball1.Draw();
+        // ball2.Draw();
     }
 }
 
@@ -230,7 +232,7 @@ export function Initialize(container, ballsAmount) {
     ];
 
     for (let i = 0; i < ballsAmount; ++i) {
-        balls.push(new Ball(canvasContainer, 20*i, 20*i, 'n'+(i+1).toString(), colors[i], Math.PI / (i+1), (i%2) === 0 ? 10 : (10+i*1)));
+        balls.push(new Ball(canvasContainer, 35*i, 35*i, 'n'+(i+1).toString(), colors[i], Math.PI/13 * (i+1), (i%2) === 0 ? 10 : (10+i*1)));
     }
 
     for (let i = 0; i < balls.length; ++i) {
@@ -249,7 +251,7 @@ export function StartStopGame() {
                     ProcessCollision(i, j);
                 }
             }
-
+            balls.forEach(v=>v.Draw());
             timer = setTimeout(tick, 15);
 
             if (startStopFlag == null) {
