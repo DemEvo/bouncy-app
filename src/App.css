@@ -20,6 +20,7 @@
     transition: background 0.3s, opacity 0.3s,;
 }
 
+
 .btn[disabled] {
     background: rgba(34, 36, 38, 0.3);
 }

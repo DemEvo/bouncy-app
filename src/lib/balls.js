@@ -34,7 +34,15 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
             ball = document.createElement('div');
             ball.style.width = thisobj.radius*2+'px';
             ball.style.height = thisobj.radius*2+'px';
-            ball.style.background = thisobj.color;
+            ball.style.background = ((c)=>{
+                const r = parseInt(c.slice(1,3), 16);
+                const g = parseInt(c.slice(3,5), 16);
+                const b = parseInt(c.slice(5,7), 16);
+                const [h,s,l] = rgbToHsl(r,g,b);
+                const res = `hsla(${h*360},${s*1.8*100}%,${l/2*100}%,${.5})`;
+                console.log('ball.style.background =', res);
+                return res;
+            })(thisobj.color);
             ball.classList.add('ball');
             ball.setAttribute('id', thisobj.id);
             canvasContainer.appendChild(ball);
@@ -200,35 +208,60 @@ function ProcessCollision(ball1, ball2) {
     }
 }
 
+function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max === min) {
+        h = s = 0; // achromatic
+    } else {
+        let d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+            default: alert('NLO atakked !!!!!');
+        }
+
+        h /= 6;
+    }
+
+    return [ h, s, l ];
+}
+
 export function Initialize(container, ballsAmount) {
     const canvasContainer = container;
     const colors = [
-        '#1f77b4',
-        '#aec7e8',
-        '#ff7f0e',
-        '#ffbb78',
-        '#2ca02c',
-        '#98df8a',
-        '#d62728',
-        '#ff9896',
-        '#9467bd',
-        '#c5b0d5',
-        '#8c564b',
-        '#c49c94',
-        '#e377c2',
-        '#f7b6d2',
-        '#7f7f7f',
-        '#c7c7c7',
-        '#bcbd22',
-        '#dbdb8d',
-        '#17becf',
-        '#9edae5',
-        '#1f77b4',
-        '#aec7e8',
-        '#ff7f0e',
-        '#ffbb78',
-        '#2ca02c',
-        '#98df8a'
+        '#1f77b480',
+        '#aec7e880',
+        '#ff7f0e80',
+        '#ffbb7880',
+        '#2ca02c80',
+        '#98df8a80',
+        '#d6272880',
+        '#ff989680',
+        '#9467bd80',
+        '#c5b0d580',
+        '#8c564b80',
+        '#c49c9480',
+        '#e377c280',
+        '#f7b6d280',
+        '#7f7f7f80',
+        '#c7c7c780',
+        '#bcbd2280',
+        '#dbdb8d80',
+        '#17becf80',
+        '#9edae580',
+        '#1f77b480',
+        '#aec7e880',
+        '#ff7f0e80',
+        '#ffbb7880',
+        '#2ca02c80',
+        '#98df8a80'
     ];
 
     for (let i = 0; i < ballsAmount; ++i) {
