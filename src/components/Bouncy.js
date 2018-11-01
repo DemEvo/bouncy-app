@@ -31,7 +31,7 @@ class Bouncy extends Component {
     };
 
     changeInputHandler = (e) => {
-        const amount = isNumeric(stringToNumber(e.target.value)) && (stringToNumber(e.target.value) <= 25)
+        const amount = isNumeric(stringToNumber(e.target.value)) && (stringToNumber(e.target.value) <= 50)
             ? stringToNumber(e.target.value)
             : 0;
 

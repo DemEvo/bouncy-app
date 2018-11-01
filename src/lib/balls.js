@@ -266,7 +266,7 @@ export function Initialize(container, ballsAmount) {
     ];
 
     for (let i = 0; i < ballsAmount; ++i) {
-        balls.push(new Ball(canvasContainer, 35*i, 35*i, 'n'+(i+1).toString(), colors[i], Math.PI/13 * (i+1), (i%2) === 0 ? 15 : (15+i*2)));
+        balls.push(new Ball(canvasContainer, 35*i, 35*i, 'n'+(i+1).toString(), colors[i%25], Math.PI/13 * (i+1), (i%2) === 0 ? 15 : (15+i*2)));
     }
 
     for (let i = 0; i < balls.length; ++i) {
