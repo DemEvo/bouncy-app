@@ -6,12 +6,12 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
     this.posY = y % (960 - 2 * weight) + weight; // cy
     this.color = color;
     this.radius = weight;
-    this.jumpSize = 6;
+    this.jumpSize = 0.5;
     this.canvasContainer = canvasContainer;
     this.id = id;
     this.aoa = aoa;
     this.weight = weight;
-    this.mass = this.radius ** 2;
+    this.mass = this.radius ** 3;
 
     if (!this.aoa)
         this.aoa = Math.PI / 7;
@@ -91,24 +91,39 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
     };
 }
 
-function CheckCollision(ball1, ball2, agglutinate) {
-    let absx = ball2.posX - ball1.posX;
-    let absy = ball2.posY - ball1.posY;
+const  gravitation = 0.06;
 
-    let distance = (absx * absx) + (absy * absy);
+function CheckCollision(ball1, ball2, agglutinate) {
+    let dx = ball2.posX - ball1.posX;
+    let dy = ball2.posY - ball1.posY;
+
+    const distance = dx**2 + dy**2;
     //distance = Math.sqrt(distance);
-    let qradius = (parseFloat(ball1.radius) + parseFloat(ball2.radius));
-    qradius *= qradius;
+    let qradius = (ball1.radius + ball2.radius)**2;
+
 
     if (distance - qradius < -qradius * 0.0) {
         if(agglutinate) {return true;}
         let difx = (ball2.posX - ball2.vx) - (ball1.posX - ball1.vx);
         let dify = (ball2.posY - ball2.vy) - (ball1.posY - ball1.vy);
         let dif_distance = (difx * difx) + (dify * dify);
-        return (dif_distance - distance > 0.);
-
-        //return true;
+        if (dif_distance - distance > 0.) return true;
     }
+
+    /* притяжение начало */
+    const Mm = ball2.mass * ball1.mass;
+    const F = Mm / distance * ball1.jumpSize * gravitation;
+    const a1 = F / ball1.mass;
+    const a2 = F / ball2.mass;
+    const d = distance **.5;  //
+    dx /= d;
+    dy /= d;
+    ball1.vx += dx * a1;
+    ball1.vy += dy * a1;
+    ball2.vx += dx * -a2;
+    ball2.vy += dy * -a2;
+    /* притяжение конец */
+
     return false;
 }
 
@@ -299,7 +314,7 @@ export function StartStopGame(agglutinate) {
             }
             balls.forEach(v => {
                 v.Draw();
-                v.vy+=0.12;
+                // v.vy+=0.12;   // вес вниз
             });
             timer = setTimeout(tick, 15);
 
