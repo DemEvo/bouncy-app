@@ -5,7 +5,7 @@ import { Initialize, StartStopGame, RemoveBalls }  from '../lib/balls';
 class DrawArea extends Component {
     componentDidMount() {
         Initialize(this.refs.drawArea, this.props.ballsAmount);
-        StartStopGame();
+        StartStopGame(this.props.agglutinate);
     }
 
     componentDidUpdate() {

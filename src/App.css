@@ -59,10 +59,11 @@ input[disabled] {
 }
 
 .draw-block {
-    width: 960px;
-    height: 800px;
+    width: 1057px;
+    height: 650px;
     /*height: 400px;*/
     border: 1px solid #000;
+    /* border-radius:50%;   */
     margin: auto;
 }
 
