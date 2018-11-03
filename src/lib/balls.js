@@ -289,11 +289,12 @@ export function Initialize(container, ballsAmount) {
 
     for (let i = 0; i < ballsAmount; ++i) {
         balls.push(new Ball(
-            canvasContainer, 35 * i,
-            35 * i,
+            canvasContainer, 15 * i,
+            15 * i/8,
             'n' + (i + 1).toString(),
             colors[i % 25],
-            Math.PI / 13 * (i + 1),
+            // Math.PI / 13 * (i + 1),
+            0.1,
             (i % 99) === 0 ? 4 : (4 + (i * 5) ** .5) / 2
 
         ));
@@ -306,13 +307,14 @@ export function Initialize(container, ballsAmount) {
     return canvasContainer;
 }
 
-let CiclesDrawRelation = 3;
+let ciclesDrawRelation = 80;
+let globCicles = 0;
 
 export function StartStopGame(agglutinate) {
-
     if (startStopFlag == null) {
         let timer = setTimeout(function tick() {
-            for(let kz = CiclesDrawRelation; kz--;) {
+            let start =  Date.now();
+            for(let kz = ciclesDrawRelation; kz--;) {
                 for (let i = 0; i < balls.length; ++i) {
                     balls[i].Move();
                     for (let j = i + 1; j < balls.length; ++j) {
@@ -320,10 +322,11 @@ export function StartStopGame(agglutinate) {
                     }
                 }
                 balls.forEach(v => {
-                     v.vy+=0.12;   // вес вниз
-                     v.vx+=0.12;   // вес вправо
+                     // v.vy+=0.12;   // вес вниз
+                     // v.vx+=0.12;   // вес вправо
                 });
             }
+            if(!(globCicles++%300)){ console.log(`${ciclesDrawRelation} циклов за ${Date.now() - start} мс`);}
             balls.forEach(v => {
                 v.Draw();
             });
@@ -337,7 +340,6 @@ export function StartStopGame(agglutinate) {
             else {
                 return false;
             }
-
         }, 15);
 
         startStopFlag = 1;
