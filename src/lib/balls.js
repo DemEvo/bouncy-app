@@ -51,7 +51,7 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
         ball.style.left = thisobj.posX - thisobj.radius + 'px';
         ball.style.top = thisobj.posY - thisobj.radius + 'px';
     };
-
+const tens = 0.8;
     this.Move = function () {
         let canvasContainer = thisobj.canvasContainer;
 
@@ -59,35 +59,35 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
         thisobj.posY += thisobj.vy;
 
         if (canvasContainer.offsetWidth <= (thisobj.posX + thisobj.radius)) {
-            thisobj.posX = canvasContainer.offsetWidth - thisobj.radius - 1;
-            thisobj.aoa = Math.PI - thisobj.aoa;
-            thisobj.vx = -thisobj.vx;
-        }
+            thisobj.posX = canvasContainer.offsetWidth - thisobj.radius;
+            // thisobj.aoa = Math.PI - thisobj.aoa;
+            thisobj.vx = -thisobj.vx * tens;
+        } else  {
 
-        if (thisobj.posX < thisobj.radius) {
-            thisobj.posX = thisobj.radius + 1;
-            thisobj.aoa = Math.PI - thisobj.aoa;
-            thisobj.vx = -thisobj.vx;
+            if (thisobj.posX < thisobj.radius) {
+                thisobj.posX = thisobj.radius;
+                // thisobj.aoa = Math.PI - thisobj.aoa;
+                thisobj.vx = -thisobj.vx * tens;
+            }
         }
-
         if (canvasContainer.offsetHeight < (thisobj.posY + thisobj.radius)) {
-            thisobj.posY = canvasContainer.offsetHeight - thisobj.radius - 1;
-            thisobj.aoa = 2 * Math.PI - thisobj.aoa;
-            thisobj.vy = -thisobj.vy;
+            thisobj.posY = canvasContainer.offsetHeight - thisobj.radius;
+            // thisobj.aoa = 2 * Math.PI - thisobj.aoa;
+            thisobj.vy = -thisobj.vy * tens;
+        }  else {
+
+            if (thisobj.posY < thisobj.radius) {
+                thisobj.posY = thisobj.radius;
+                // thisobj.aoa = 2 * Math.PI - thisobj.aoa;
+                thisobj.vy = -thisobj.vy * tens;
+            }
         }
+        // if (thisobj.aoa > 2 * Math.PI)
+        //     thisobj.aoa = thisobj.aoa - 2 * Math.PI;
+        // if (thisobj.aoa < 0)
+        //     thisobj.aoa = 2 * Math.PI + thisobj.aoa;
 
-        if (thisobj.posY < thisobj.radius) {
-            thisobj.posY = thisobj.radius + 1;
-            thisobj.aoa = 2 * Math.PI - thisobj.aoa;
-            thisobj.vy = -thisobj.vy;
-        }
-
-        if (thisobj.aoa > 2 * Math.PI)
-            thisobj.aoa = thisobj.aoa - 2 * Math.PI;
-        if (thisobj.aoa < 0)
-            thisobj.aoa = 2 * Math.PI + thisobj.aoa;
-
-        thisobj.Draw();
+        // thisobj.Draw();
     };
 }
 
@@ -293,7 +293,7 @@ export function Initialize(container, ballsAmount) {
             'n' + (i + 1).toString(),
             colors[i % 25],
             Math.PI / 13 * (i + 1),
-            (i % 2) === 0 ? 15 : (15 + (i * 7) ** .3)
+            (i % 6) === 0 ? 8 : (8 + (i * 15) ** .3)
 
         ));
     }
@@ -316,7 +316,8 @@ export function StartStopGame(agglutinate) {
             }
             balls.forEach(v => {
                 v.Draw();
-                // v.vy+=0.12;   // вес вниз
+                 v.vy+=0.12;   // вес вниз
+                 v.vx+=0.12;   // вес вправо
             });
             timer = setTimeout(tick, 15);
 

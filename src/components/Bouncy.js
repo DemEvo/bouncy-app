@@ -36,7 +36,7 @@ class Bouncy extends Component {
         );
     };
     changeInputHandler = (e) => {
-        const amount = isNumeric(stringToNumber(e.target.value)) && (stringToNumber(e.target.value) <= 50)
+        const amount = isNumeric(stringToNumber(e.target.value)) && (stringToNumber(e.target.value) <= 99)
             ? stringToNumber(e.target.value)
             : 0;
 
@@ -72,7 +72,7 @@ class Bouncy extends Component {
                     </button>
                     <NumberFormat
                         name="ballsAmount"
-                        placeholder="Число шаров от 1 до 50"
+                        placeholder="Число шаров от 1 до 99"
                         value={ballsAmount ? ballsAmount : null}
                         disabled={progressStatus}
                         onChange={this.changeInputHandler}
