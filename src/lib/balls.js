@@ -6,12 +6,12 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
     this.posY = y % (960 - 2 * weight) + weight; // cy
     this.color = color;
     this.radius = weight;
-    this.jumpSize = 0.5;
+    this.jumpSize = 0.001;
     this.canvasContainer = canvasContainer;
     this.id = id;
     this.aoa = aoa;
     this.weight = weight;
-    this.mass = this.radius ** 3;
+    this.mass = this.radius ** 5;
 
     if (!this.aoa)
         this.aoa = Math.PI / 7;
@@ -293,7 +293,9 @@ export function Initialize(container, ballsAmount) {
             'n' + (i + 1).toString(),
             colors[i % 25],
             Math.PI / 13 * (i + 1),
-            (i % 2) === 0 ? 15 : (15 + (i * 5) ** .5)));
+            (i % 2) === 0 ? 15 : (15 + (i * 7) ** .3)
+
+        ));
     }
 
     for (let i = 0; i < balls.length; ++i) {
