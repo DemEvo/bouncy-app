@@ -6,18 +6,18 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
     this.posY = y % (960 - 2 * weight) + weight; // cy
     this.color = color;
     this.radius = weight;
-    this.jumpSize = 0.001;
+    this.jumpSize = 0.00001;
     this.canvasContainer = canvasContainer;
     this.id = id;
     this.aoa = aoa;
     this.weight = weight;
-    this.mass = this.radius ** 5;
+    this.mass =  this.radius ** 6;
 
-    if (!this.aoa)
-        this.aoa = Math.PI / 7;
-    if (!this.weight)
-        this.weight = 10;
-    this.radius = this.weight;
+    // if (!this.aoa)
+    //     this.aoa = Math.PI / 7;
+    // if (!this.weight)
+    //     this.weight = 10;
+    // this.radius = this.weight;
 
     let thisobj = this;
 
@@ -98,6 +98,7 @@ function CheckCollision(ball1, ball2, agglutinate) {
     let dy = ball2.posY - ball1.posY;
 
     const distance = dx**2 + dy**2;
+    if(distance<.00000001) {ball2.posX+=0.00000002}
     //distance = Math.sqrt(distance);
     let qradius = (ball1.radius + ball2.radius)**2;
 
@@ -293,7 +294,7 @@ export function Initialize(container, ballsAmount) {
             'n' + (i + 1).toString(),
             colors[i % 25],
             Math.PI / 13 * (i + 1),
-            (i % 6) === 0 ? 8 : (8 + (i * 15) ** .3)
+            (i % 99) === 0 ? 4 : (4 + (i * 5) ** .5) / 2
 
         ));
     }
@@ -305,20 +306,28 @@ export function Initialize(container, ballsAmount) {
     return canvasContainer;
 }
 
+let CiclesDrawRelation = 3;
+
 export function StartStopGame(agglutinate) {
+
     if (startStopFlag == null) {
         let timer = setTimeout(function tick() {
-            for (let i = 0; i < balls.length; ++i) {
-                balls[i].Move();
-                for (let j = i + 1; j < balls.length; ++j) {
-                    ProcessCollision(i, j, agglutinate);
+            for(let kz = CiclesDrawRelation; kz--;) {
+                for (let i = 0; i < balls.length; ++i) {
+                    balls[i].Move();
+                    for (let j = i + 1; j < balls.length; ++j) {
+                        ProcessCollision(i, j, agglutinate);
+                    }
                 }
+                balls.forEach(v => {
+                     v.vy+=0.12;   // вес вниз
+                     v.vx+=0.12;   // вес вправо
+                });
             }
             balls.forEach(v => {
                 v.Draw();
-                 v.vy+=0.12;   // вес вниз
-                 v.vx+=0.12;   // вес вправо
             });
+
             timer = setTimeout(tick, 15);
 
             if (startStopFlag == null) {
