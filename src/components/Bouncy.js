@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import NumberFormat from 'react-number-format';
-import { stringToNumber } from '../utils/stringExtension';
-import { isNumeric } from '../utils/dataValidation';
+import {stringToNumber} from '../utils/stringExtension';
+import {isNumeric} from '../utils/dataValidation';
 import DrawArea from './DrawArea';
 
 class Bouncy extends Component {
@@ -9,6 +9,7 @@ class Bouncy extends Component {
         progressStatus: false,
         pause: false,
         ballsAmount: 0,
+        agglutinate: 0,
     };
 
     progressHandler = (progressStatus) => {
@@ -29,9 +30,13 @@ class Bouncy extends Component {
             })
         );
     };
-
+    agglutinateChange = () => {
+        this.setState(
+           { agglutinate: !this.state.agglutinate }     
+        );
+    };
     changeInputHandler = (e) => {
-        const amount = isNumeric(stringToNumber(e.target.value)) && (stringToNumber(e.target.value) <= 25)
+        const amount = isNumeric(stringToNumber(e.target.value)) && (stringToNumber(e.target.value) <= 99)
             ? stringToNumber(e.target.value)
             : 0;
 
@@ -41,49 +46,60 @@ class Bouncy extends Component {
     };
 
     render() {
-        const { progressStatus, pause, ballsAmount } = this.state;
+        const {progressStatus, pause, ballsAmount, agglutinate} = this.state;
 
         return (
             <>
-                <div className="draw-panel">
-                    <div className="draw-panel__wrapper">
-                        <button
-                            className="btn"
-                            onClick = {() => this.progressHandler(true)}
-                            disabled={!ballsAmount || progressStatus}
-                        >Старт</button>
-                        <button
-                            className="btn"
-                            onClick = {() => this.pauseHandler()}
-                            disabled={!ballsAmount || progressStatus === false}
-                        >Пауза</button>
-                        <button
-                            className="btn"
-                            onClick = {() => this.progressHandler(false)}
-                            disabled={!ballsAmount}
-                        >Стоп</button>
-                        <NumberFormat
-                            name="ballsAmount"
-                            placeholder="Число шаров от 1 до 25"
-                            value={ballsAmount ? ballsAmount : null}
-                            disabled={progressStatus}
-                            onChange={this.changeInputHandler}
-                            format={'##'}
-                            allowNegative={false}
-                        />
-                    </div>
+            <div className="draw-panel">
+                <div className="draw-panel__wrapper">
+                    <button
+                        className="btn"
+                        onClick={() => this.progressHandler(true)}
+                        disabled={!ballsAmount || progressStatus}
+                    >Старт
+                    </button>
+                    <button
+                        className="btn"
+                        onClick={() => this.pauseHandler()}
+                        disabled={!ballsAmount || progressStatus === false}
+                    >Пауза
+                    </button>
+                    <button
+                        className="btn"
+                        onClick={() => this.progressHandler(false)}
+                        disabled={!ballsAmount}
+                    >Стоп
+                    </button>
+                    <NumberFormat
+                        name="ballsAmount"
+                        placeholder="Число шаров от 1 до 99"
+                        value={ballsAmount ? ballsAmount : null}
+                        disabled={progressStatus}
+                        onChange={this.changeInputHandler}
+                        format={'##'}
+                        allowNegative={false}
+                    />
+                    <input type="checkbox" id="agg"
+                        value={agglutinate}
+                        onClick={()=>this.agglutinateChange()}
+                    />
+                    <label htmlFor="agg">
+                        Прилипание
+                    </label>
                 </div>
-                <div className="draw-block">
-                    {(progressStatus && ballsAmount)
-                        && (
-                            <DrawArea
-                                progressStatus={progressStatus}
-                                pause={pause}
-                                ballsAmount={ballsAmount}
-                            />
-                        )
-                    }
-                </div>
+            </div>
+            <div className="draw-block">
+                {(progressStatus && ballsAmount)
+                && (
+                    <DrawArea
+                        progressStatus={progressStatus}
+                        pause={pause}
+                        ballsAmount={ballsAmount}
+                        agglutinate={agglutinate}
+                    />
+                )
+                }
+            </div>
             </>
         );
     }
