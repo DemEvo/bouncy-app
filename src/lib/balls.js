@@ -14,18 +14,10 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
     this.weight = weight;
     this.mass =  this.radius ** 6;
 
-    // if (!this.aoa)
-    //     this.aoa = Math.PI / 7;
-    // if (!this.weight)
-    //     this.weight = 10;
-    // this.radius = this.weight;
-
     let thisobj = this;
 
     this.vx = Math.cos(thisobj.aoa) * thisobj.jumpSize; // velocity x
     this.vy = Math.sin(thisobj.aoa) * thisobj.jumpSize; // velocity y
-
-    // console.log(`Ball #${id} =`, this);
 
     this.Draw = function () {
         let canvasContainer = thisobj.canvasContainer;
@@ -41,7 +33,6 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
                 const b = parseInt(c[5] + c[6], 16);
                 const [h, s, l] = rgbToHsl(r, g, b);
                 const res = `hsla(${h * 360},${s * 1.8 * 100}%,${l / 2 * 100}%,${.5})`;
-                // console.log('ball.style.background =', res);
                 return res;
             })(thisobj.color);
             ball.classList.add('ball');
@@ -64,34 +55,24 @@ const tens = 0.8
 
         if (canvasContainer.offsetWidth <= (thisobj.posX + thisobj.radius)) {
             thisobj.posX = canvasContainer.offsetWidth - thisobj.radius;
-            // thisobj.aoa = Math.PI - thisobj.aoa;
             thisobj.vx = -thisobj.vx * tens;
         } else  {
 
             if (thisobj.posX < thisobj.radius) {
                 thisobj.posX = thisobj.radius;
-                // thisobj.aoa = Math.PI - thisobj.aoa;
                 thisobj.vx = -thisobj.vx * tens;
             }
         }
         if (canvasContainer.offsetHeight < (thisobj.posY + thisobj.radius)) {
             thisobj.posY = canvasContainer.offsetHeight - thisobj.radius;
-            // thisobj.aoa = 2 * Math.PI - thisobj.aoa;
             thisobj.vy = -thisobj.vy * tens;
         }  else {
 
             if (thisobj.posY < thisobj.radius) {
                 thisobj.posY = thisobj.radius;
-                // thisobj.aoa = 2 * Math.PI - thisobj.aoa;
                 thisobj.vy = -thisobj.vy * tens;
             }
         }
-        // if (thisobj.aoa > 2 * Math.PI)
-        //     thisobj.aoa = thisobj.aoa - 2 * Math.PI;
-        // if (thisobj.aoa < 0)
-        //     thisobj.aoa = 2 * Math.PI + thisobj.aoa;
-
-        // thisobj.Draw();
     };
 }
 
@@ -101,28 +82,29 @@ function CheckCollision(ball1, ball2, agglutinate) {
     let dx = ball2.posX - ball1.posX;
     let dy = ball2.posY - ball1.posY;
 
-    const distance = dx**2 + dy**2;
-    if(distance<.00000001) {ball2.posX+=0.00000002}
-    //distance = Math.sqrt(distance);
+    const sqDistance = dx**2 + dy**2;
+    if(sqDistance<.00000001) {
+        ball2.posX+=0.00000002;
+    }
     let qradius = (ball1.radius + ball2.radius)**2;
 
 
-    if (distance - qradius < -qradius * 0.0) {
+    if (sqDistance - qradius < -qradius * 0.0) {
         if(agglutinate) {return true;}
         let difx = (ball2.posX - ball2.vx) - (ball1.posX - ball1.vx);
         let dify = (ball2.posY - ball2.vy) - (ball1.posY - ball1.vy);
         let dif_distance = (difx * difx) + (dify * dify);
-        if (dif_distance - distance > 0. && !ball1.mother) return true;
+        if (dif_distance - sqDistance > 0. && !ball1.mother) return true;
     }
 
     /* притяжение начало */
     const Mm = ball2.mass * ball1.mass;
-    const F = Mm / distance * ball1.jumpSize * gravitation;
+    const F = Mm / sqDistance * ball1.jumpSize * gravitation;
     const a1 = F / ball1.mass;
     const a2 = F / ball2.mass;
-    const d = distance **.5;  //
-    dx /= d;
-    dy /= d;
+    const distance = sqDistance **.5;  //  извлечение корня
+    dx /= distance;
+    dy /= distance;
     if(!ball1.mother){
         ball1.vx += dx * a1;
         ball1.vy += dy * a1;
@@ -138,11 +120,6 @@ function CheckCollision(ball1, ball2, agglutinate) {
 }
 
 function ProcessCollision(ball1, ball2, agglutinate) {
-
-    // if (ball2 <= ball1)
-    //     return;
-    // if (ball1 >= (balls.length - 1) || ball2 >= balls.length)
-    //     return;
 
     ball1 = balls[ball1];
     ball2 = balls[ball2];
@@ -161,8 +138,6 @@ function ProcessCollision(ball1, ball2, agglutinate) {
         let p2_x = ball2.posX; // -= v2_x/2;
         let p2_y = ball2.posY; // -= v2_y/2;
 // нормаль к удару, касательная
-        //let norm_x,norm_y,tang_x,tang_y;
-
 // создаём и нормируем вектор из двух точек
         let pdpx = p2_x - p1_x;
         let pdpy = p2_y - p1_y;
@@ -178,9 +153,6 @@ function ProcessCollision(ball1, ball2, agglutinate) {
         let tang_y = -norm_x;
 
 // проэкции скоростей на нормаль и касательную
-        //let v1n_x,v2n_x,v1t_x,v2t_x;
-        //let v1n_y,v2n_y,v1t_y,v2t_y;
-
 // vect - что проэцируем, line - куда проэцируем
         let Denomnorm = norm_x * norm_x + norm_y * norm_y;
         let tmpnorm1 = (v1_x * norm_x + v1_y * norm_y) / Denomnorm;
@@ -206,8 +178,6 @@ function ProcessCollision(ball1, ball2, agglutinate) {
         let v2t_x = tang_x * tmptang2;
         let v2t_y = tang_y * tmptang2;
 
-        //let v1res_x,v2res_x;
-        //let v1res_y,v2res_y;
 // считаем импульсы
         let msm = (m1 + m2);
         let mdm = m1 - m2;
@@ -258,10 +228,8 @@ function rgbToHsl(r, g, b) {
             default:
                 alert('NLO atakked !!!!!');
         }
-
         h /= 6;
     }
-
     return [h, s, l];
 }
 
@@ -297,23 +265,20 @@ export function Initialize(container, ballsAmount) {
     ];
 
 
-    const rc = 20;
+    const rc = 12;
     balls.push(new Ball(canvasContainer, -50, 225, 0,'#000000',0,rc));
     balls.push(new Ball(canvasContainer, 500, 225, 1,'#000000',0,rc));
     balls.push(new Ball(canvasContainer, 225, -50, 2,'#000000',0,rc));
     balls.push(new Ball(canvasContainer, 225, 500, 3,'#000000',0,rc));
 
-
     for (let i = 4; i < ballsAmount; ++i) {
         balls.push(new Ball(
             canvasContainer, 15 * i,
             15 * i/8,
-            (i),
+            i,
             colors[i % 25],
-            // Math.PI / 13 * (i + 1),
             0.1,
-            (i % 99) === 0 ? 4 : (4 + (i * 5) ** .5) / 2
-
+            (i % 99) === 0 ? 4 : (4 + (i * 5) ** .5) / 3
         ));
     }
 

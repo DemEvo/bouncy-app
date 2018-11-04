@@ -75,7 +75,6 @@ input[disabled] {
 }
 
 #drawArea {
-    /*overflow: hidden;*/
     position: relative;
 }
 
