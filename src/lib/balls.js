@@ -2,13 +2,14 @@ let balls = [];
 let startStopFlag = null;
 
 function Ball(canvasContainer, x, y, id, color, aoa, weight) {
-    this.posX = x % (400 - 2 * weight) + weight; // cx
-    this.posY = y % (960 - 2 * weight) + weight; // cy
+    this.mother = id<4;
+    this.posX = this.mother ? x : x % (450 - 2 * weight) + weight; // cx
+    this.posY = this.mother ? y : y % (450 - 2 * weight) + weight; // cy
     this.color = color;
     this.radius = weight;
     this.jumpSize = 0.00001;
     this.canvasContainer = canvasContainer;
-    this.id = id;
+    this.id = 'n'+ id;
     this.aoa = aoa;
     this.weight = weight;
     this.mass =  this.radius ** 6;
@@ -51,8 +52,11 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
         ball.style.left = thisobj.posX - thisobj.radius + 'px';
         ball.style.top = thisobj.posY - thisobj.radius + 'px';
     };
-const tens = 0.8;
+
+const tens = 0.8
+
     this.Move = function () {
+        if (thisobj.mother) return;
         let canvasContainer = thisobj.canvasContainer;
 
         thisobj.posX += thisobj.vx;
@@ -108,7 +112,7 @@ function CheckCollision(ball1, ball2, agglutinate) {
         let difx = (ball2.posX - ball2.vx) - (ball1.posX - ball1.vx);
         let dify = (ball2.posY - ball2.vy) - (ball1.posY - ball1.vy);
         let dif_distance = (difx * difx) + (dify * dify);
-        if (dif_distance - distance > 0.) return true;
+        if (dif_distance - distance > 0. && !ball1.mother) return true;
     }
 
     /* притяжение начало */
@@ -119,10 +123,15 @@ function CheckCollision(ball1, ball2, agglutinate) {
     const d = distance **.5;  //
     dx /= d;
     dy /= d;
-    ball1.vx += dx * a1;
-    ball1.vy += dy * a1;
-    ball2.vx += dx * -a2;
-    ball2.vy += dy * -a2;
+    if(!ball1.mother){
+        ball1.vx += dx * a1;
+        ball1.vy += dy * a1;
+    }
+
+    if(!ball2.mother){
+        ball2.vx += dx * -a2;
+        ball2.vy += dy * -a2;
+    }
     /* притяжение конец */
 
     return false;
@@ -130,10 +139,10 @@ function CheckCollision(ball1, ball2, agglutinate) {
 
 function ProcessCollision(ball1, ball2, agglutinate) {
 
-    if (ball2 <= ball1)
-        return;
-    if (ball1 >= (balls.length - 1) || ball2 >= balls.length)
-        return;
+    // if (ball2 <= ball1)
+    //     return;
+    // if (ball1 >= (balls.length - 1) || ball2 >= balls.length)
+    //     return;
 
     ball1 = balls[ball1];
     ball2 = balls[ball2];
@@ -287,11 +296,19 @@ export function Initialize(container, ballsAmount) {
         '#98df8a80'
     ];
 
-    for (let i = 0; i < ballsAmount; ++i) {
+
+    const rc = 20;
+    balls.push(new Ball(canvasContainer, -50, 225, 0,'#000000',0,rc));
+    balls.push(new Ball(canvasContainer, 500, 225, 1,'#000000',0,rc));
+    balls.push(new Ball(canvasContainer, 225, -50, 2,'#000000',0,rc));
+    balls.push(new Ball(canvasContainer, 225, 500, 3,'#000000',0,rc));
+
+
+    for (let i = 4; i < ballsAmount; ++i) {
         balls.push(new Ball(
             canvasContainer, 15 * i,
             15 * i/8,
-            'n' + (i + 1).toString(),
+            (i),
             colors[i % 25],
             // Math.PI / 13 * (i + 1),
             0.1,
@@ -307,7 +324,7 @@ export function Initialize(container, ballsAmount) {
     return canvasContainer;
 }
 
-let ciclesDrawRelation = 80;
+let ciclesDrawRelation = 30;
 let globCicles = 0;
 
 export function StartStopGame(agglutinate) {
