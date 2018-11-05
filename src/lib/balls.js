@@ -1,7 +1,7 @@
 let balls = [];
 let startStopFlag = null;
 
-function Ball(canvasContainer, x, y, id, color, aoa, weight) {
+function Ball(canvasContainer, x, y, id, color, aoa, weight, q) {
     this.mother = id<4;
     this.posX = this.mother ? x : x % (450 - 2 * weight) + weight; // cx
     this.posY = this.mother ? y : y % (450 - 2 * weight) + weight; // cy
@@ -13,6 +13,7 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
     this.aoa = aoa;
     this.weight = weight;
     this.mass =  this.radius ** 6;
+    this.q = q * this.radius ** 5;
 
     let thisobj = this;
 
@@ -44,14 +45,17 @@ function Ball(canvasContainer, x, y, id, color, aoa, weight) {
         ball.style.top = thisobj.posY - thisobj.radius + 'px';
     };
 
-const tens = 0.8
+
+const tens = 0.6;
+const viscosity = 0.01;
+const conduction = 1 - viscosity;
 
     this.Move = function () {
         if (thisobj.mother) return;
         let canvasContainer = thisobj.canvasContainer;
 
-        thisobj.posX += thisobj.vx;
-        thisobj.posY += thisobj.vy;
+        thisobj.posX += thisobj.vx *= conduction;
+        thisobj.posY += thisobj.vy *= conduction;
 
         if (canvasContainer.offsetWidth <= (thisobj.posX + thisobj.radius)) {
             thisobj.posX = canvasContainer.offsetWidth - thisobj.radius;
@@ -77,6 +81,7 @@ const tens = 0.8
 }
 
 const  gravitation = 0.06;
+const  electricity = 3.6;
 
 function CheckCollision(ball1, ball2, agglutinate) {
     let dx = ball2.posX - ball1.posX;
@@ -97,14 +102,14 @@ function CheckCollision(ball1, ball2, agglutinate) {
         if (dif_distance - sqDistance > 0. && !ball1.mother) return true;
     }
 
+    const distance = sqDistance **.5;  //  извлечение корня
+    dx /= distance;
+    dy /= distance;
     /* притяжение начало */
     const Mm = ball2.mass * ball1.mass;
     const F = Mm / sqDistance * ball1.jumpSize * gravitation;
     const a1 = F / ball1.mass;
     const a2 = F / ball2.mass;
-    const distance = sqDistance **.5;  //  извлечение корня
-    dx /= distance;
-    dy /= distance;
     if(!ball1.mother){
         ball1.vx += dx * a1;
         ball1.vy += dy * a1;
@@ -115,6 +120,22 @@ function CheckCollision(ball1, ball2, agglutinate) {
         ball2.vy += dy * -a2;
     }
     /* притяжение конец */
+
+    /* електростатика начало */
+    const eMm = -ball2.q * ball1.q;
+    const eF = eMm / sqDistance**1.618 * ball1.jumpSize * electricity;
+    const ea1 = eF / ball1.q;
+    const ea2 = eF / -ball2.q;
+
+    if(!ball1.mother){
+        ball1.vx += dx * ea1;
+        ball1.vy += dy * ea1;
+    }
+    if(!ball2.mother){
+        ball2.vx += dx * -ea2;
+        ball2.vy += dy * -ea2;
+    }
+    /* электростатика конец */
 
     return false;
 }
@@ -236,49 +257,38 @@ function rgbToHsl(r, g, b) {
 export function Initialize(container, ballsAmount) {
     const canvasContainer = container;
     const colors = [
-        '#1f77b480',
-        '#aec7e880',
-        '#ff7f0e80',
-        '#ffbb7880',
-        '#2ca02c80',
-        '#98df8a80',
-        '#d6272880',
-        '#ff989680',
-        '#9467bd80',
-        '#c5b0d580',
-        '#8c564b80',
-        '#c49c9480',
-        '#e377c280',
-        '#f7b6d280',
-        '#7f7f7f80',
-        '#c7c7c780',
-        '#bcbd2280',
-        '#dbdb8d80',
-        '#17becf80',
-        '#9edae580',
-        '#1f77b480',
-        '#aec7e880',
-        '#ff7f0e80',
-        '#ffbb7880',
-        '#2ca02c80',
-        '#98df8a80'
+        '#1f77b480',        '#aec7e880',
+        '#ff7f0e80',        '#ffbb7880',
+        '#2ca02c80',        '#98df8a80',
+        '#d6272880',        '#ff989680',
+        '#9467bd80',        '#c5b0d580',
+        '#8c564b80',        '#c49c9480',
+        '#e377c280',        '#f7b6d280',
+        '#7f7f7f80',        '#c7c7c780',
+        '#bcbd2280',        '#dbdb8d80',
+        '#17becf80',        '#9edae580',
+        '#1f77b480',        '#aec7e880',
+        '#ff7f0e80',        '#ffbb7880',
+        '#2ca02c80',        '#98df8a80'
     ];
 
 
     const rc = 12;
-    balls.push(new Ball(canvasContainer, -50, 225, 0,'#000000',0,rc));
-    balls.push(new Ball(canvasContainer, 500, 225, 1,'#000000',0,rc));
-    balls.push(new Ball(canvasContainer, 225, -50, 2,'#000000',0,rc));
-    balls.push(new Ball(canvasContainer, 225, 500, 3,'#000000',0,rc));
+    balls.push(new Ball(canvasContainer, -50, 225, 0,'#000000',0,rc, 1));
+    balls.push(new Ball(canvasContainer, 500, 225, 1,'#000000',0,rc, -1));
+    balls.push(new Ball(canvasContainer, 225, -50, 2,'#000000',0,rc, 1));
+    balls.push(new Ball(canvasContainer, 225, 500, 3,'#000000',0,rc, -1));
 
     for (let i = 4; i < ballsAmount; ++i) {
         balls.push(new Ball(
             canvasContainer, 15 * i,
             15 * i/8,
             i,
-            colors[i % 25],
+            //colors[i % 25],
+            (i % 2) === 0 ? '#0099ee' : '#ee9900',
             0.1,
-            (i % 99) === 0 ? 4 : (4 + (i * 5) ** .5) / 3
+            (i % 99) === 0 ? 4 : (4 + (i * 5) ** .5) / 3,
+            ((i % 2) === 0 ? 1 : -1) * (Math.random() + 0.2)*30
         ));
     }
 
@@ -289,7 +299,7 @@ export function Initialize(container, ballsAmount) {
     return canvasContainer;
 }
 
-let ciclesDrawRelation = 30;
+let ciclesDrawRelation = 5;
 let globCicles = 0;
 
 export function StartStopGame(agglutinate) {
